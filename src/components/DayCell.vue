@@ -8,7 +8,10 @@
           class="reminder"
           @click.stop="editReminder(reminder)"
         >
-          <span class="reminder-text">{{ reminder.time }} - {{ reminder.text }}</span>
+          <div class="reminder-content">
+            <span class="reminder-text">{{ reminder.time }} - {{ reminder.text }}</span>
+            <span v-if="reminder.weather" class="weather-info">{{ reminder.weather }}</span>
+          </div>
           <button 
             class="delete-btn" 
             @click.stop="deleteReminder(reminder.id)"
@@ -130,12 +133,24 @@
     opacity: 0.8;
   }
   
-  .reminder-text {
+  .reminder-content {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  
+  .reminder-text {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     font-size: 9px;
+  }
+  
+  .weather-info {
+    font-size: 8px;
+    opacity: 0.8;
+    font-style: italic;
   }
   
   .delete-btn {

@@ -57,6 +57,7 @@
   <script setup lang="ts">
   import { ref } from 'vue'
   import { useRemindersStore } from '../store/reminders'
+  import { useWeather } from '../composables/useWeather'
   
   const props = defineProps<{ 
     day: Date
@@ -64,6 +65,7 @@
   }>()
   const emit = defineEmits<{ close: [] }>()
   const store = useRemindersStore()
+  const { getWeatherWithCache } = useWeather()
   
   const text = ref('')
   const time = ref('')
@@ -78,30 +80,31 @@
     color.value = props.editingReminder.color
   }
   
-  function save() {
+  async function save() {
+    const reminderData = {
+      text: text.value,
+      time: time.value,
+      city: city.value,
+      color: color.value,
+    }
+    
+    const weather = await getWeatherWithCache(reminderData.city)
+    
     if (props.editingReminder) {
-      // Edit existing reminder
+      const shouldUpdateWeather = props.editingReminder.city !== reminderData.city
+      
       store.editReminder(props.editingReminder.id, {
-        text: text.value,
-        time: time.value,
-        city: city.value,
-        color: color.value,
+        ...reminderData,
+        ...(shouldUpdateWeather && { weather })
       })
     } else {
-      // Create new reminder
       store.addReminder({
-        text: text.value,
+        ...reminderData,
         date: props.day.toISOString().split('T')[0],
-        time: time.value,
-        city: city.value,
-        color: color.value,
+        weather
       })
     }
     
-    // 🔮 then here we add the weather API
-    // fetchWeather(city, date).then(weather => store.editReminder(...))
-    
-    // Close modal
     text.value = ''
     time.value = ''
     city.value = ''
