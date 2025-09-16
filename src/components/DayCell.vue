@@ -30,7 +30,7 @@
         v-if="reminders.length > 0" 
         @click.stop="deleteAllReminders" 
         class="delete-all-btn" 
-        :title="`delete all reminders for this day`"
+        :title="`delete all ${reminders.length} reminders for this day`"
         type="button"
       >
         🗑
@@ -100,37 +100,40 @@
     display: flex;
     flex-direction: column;
     cursor: pointer;
+    padding: 2px;
+    overflow: hidden;
   }
   
   .reminders {
     flex: 1;
     overflow-y: auto;
-    max-height: 60px;
     display: flex;
     flex-direction: column;
-    gap: 1px;
   }
   
   .reminders.has-overflow {
-    max-height: 50px;
+    max-height: 55px;
   }
   
   .reminder {
     font-size: 10px;
     color: white;
-    margin: 1px 0;
-    padding: 2px 4px;
-    border-radius: 3px;
+    margin: 10px;
+    padding: 3px 6px;
+    border-radius: 4px;
     cursor: pointer;
     word-wrap: break-word;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    min-height: 18px;
+    min-height: 20px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
   }
   
   .reminder:hover {
-    opacity: 0.8;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
   }
   
   .reminder-content {
@@ -149,16 +152,17 @@
   
   .weather-info {
     font-size: 8px;
-    opacity: 0.8;
+    opacity: 0.9;
     font-style: italic;
+    margin-top: 1px;
   }
   
   .delete-btn {
-    background-color: rgba(255, 0, 0, 0.8) !important;
+    background-color: rgba(255, 255, 255, 0.2) !important;
     border: none !important;
     color: white !important;
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
     cursor: pointer;
     font-size: 10px;
@@ -166,15 +170,17 @@
     display: flex !important;
     align-items: center;
     justify-content: center;
-    margin-left: 4px;
+    margin-left: 6px;
     flex-shrink: 0;
     transition: all 0.2s ease;
     position: relative;
     z-index: 10;
+    opacity: 0.7;
   }
   
   .delete-btn:hover {
-    background-color: rgba(255, 0, 0, 1);
+    background-color: rgba(255, 68, 68, 0.9) !important;
+    opacity: 1;
     transform: scale(1.1);
   }
   
@@ -206,40 +212,41 @@
   .overflow-indicator {
     font-size: 8px;
     color: #666;
-    background-color: #f0f0f0;
-    padding: 2px 4px;
-    border-radius: 3px;
+    background-color: rgba(240, 240, 240, 0.9);
+    padding: 2px 6px;
+    border-radius: 8px;
     text-align: center;
     margin-top: 2px;
     font-style: italic;
+    font-weight: 500;
+    border: 1px solid rgba(0, 0, 0, 0.1);
   }
   
   .delete-all-btn {
     position: absolute;
-    bottom: 6px;
-    left: 6px;
-    width: 22px;
-    height: 22px;
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    background-color: rgba(255, 68, 68, 0.9);
+    bottom: 30px;
+    right: 2px;
+    width: 16px;
+    height: 16px;
+    border: none;
     color: white;
-    border-radius: 50%;
+    border-radius: 3px;
     cursor: pointer;
-    font-size: 11px;
+    font-size: 8px;
     display: flex !important;
     align-items: center;
     justify-content: center;
-    opacity: 0.8;
+    opacity: 0.7;
     transition: all 0.2s ease;
     z-index: 50;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   }
   
   .delete-all-btn:hover {
     opacity: 1;
-    transform: scale(1.05);
-    background-color: rgba(255, 68, 68, 1);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+    background-color: rgba(255, 68, 68, 0.9);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   }
   </style>
   
