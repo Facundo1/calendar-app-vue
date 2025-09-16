@@ -194,7 +194,6 @@ describe("Reminder Integration Tests", () => {
 
     it("should handle city field requirement", async () => {
       const testDate = new Date("2024-01-15");
-      const store = useRemindersStore();
 
       const wrapper = mount(DayCell, {
         props: {

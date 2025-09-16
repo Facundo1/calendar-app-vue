@@ -49,6 +49,7 @@ const currentMonth = ref(currentDate.value.getMonth())
 const currentYear = ref(currentDate.value.getFullYear())
 
 const monthName = computed(() => getMonthName(currentMonth.value))
+const year = computed(() => currentYear.value)
 const weekDays = computed(() => getWeekDays())
 const calendarDays = computed(() => getCurrentMonthDays(currentYear.value, currentMonth.value))
 
