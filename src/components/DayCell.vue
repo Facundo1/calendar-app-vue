@@ -1,8 +1,8 @@
 <template>
     <div class="day-cell-content" @click="handleDayClick">
-      <div class="reminders">
+      <div class="reminders" :class="{ 'has-overflow': reminders.length > 3 }">
         <div 
-          v-for="reminder in reminders" 
+          v-for="reminder in visibleReminders" 
           :key="reminder.id" 
           :style="{ backgroundColor: reminder.color }"
           class="reminder"
@@ -18,7 +18,21 @@
             ×
           </button>
         </div>
+        <div v-if="reminders.length > 3" class="overflow-indicator">
+          +{{ reminders.length - 3 }} more
+        </div>
       </div>
+          
+      <button 
+        v-if="reminders.length > 0" 
+        @click.stop="deleteAllReminders" 
+        class="delete-all-btn" 
+        :title="`delete all reminders for this day`"
+        type="button"
+      >
+        🗑
+      </button>
+      
       <ReminderModal 
         v-if="showModal" 
         :day="day" 
@@ -42,6 +56,8 @@
     store.remindersByDate(props.day.toISOString().split('T')[0])
   )
   
+  const visibleReminders = computed(() => reminders.value.slice(0, 3))
+  
   function openModal() {
     editingReminder.value = null
     showModal.value = true
@@ -56,14 +72,20 @@
     console.log('Trying to delete reminder with ID:', id)
     if (confirm('Are you sure you want to delete this reminder?')) {
       store.deleteReminder(id)
-      console.log('Reminder deleted')
     }
   }
   
   function handleDayClick() {
-    // Si no hay recordatorios, abrir modal para crear uno
-    if (reminders.value.length === 0) {
-      openModal()
+    openModal()
+  }
+  
+  function deleteAllReminders() {
+    const dateString = props.day.toISOString().split('T')[0]
+    const count = reminders.value.length
+    
+    if (confirm(`Are you sure you want to delete all ${count} reminders for this day?\n\nThis action cannot be undone.`)) {
+      store.deleteAllRemindersForDate(dateString)
+    } else {
     }
   }
   </script>
@@ -81,6 +103,13 @@
     flex: 1;
     overflow-y: auto;
     max-height: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  
+  .reminders.has-overflow {
+    max-height: 50px;
   }
   
   .reminder {
@@ -149,13 +178,53 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0.7;
+    opacity: 0.8;
     transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   }
   
   .add-reminder-btn:hover {
     opacity: 1;
     transform: scale(1.1);
+  }
+  
+  .overflow-indicator {
+    font-size: 8px;
+    color: #666;
+    background-color: #f0f0f0;
+    padding: 2px 4px;
+    border-radius: 3px;
+    text-align: center;
+    margin-top: 2px;
+    font-style: italic;
+  }
+  
+  .delete-all-btn {
+    position: absolute;
+    bottom: 6px;
+    left: 6px;
+    width: 22px;
+    height: 22px;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    background-color: rgba(255, 68, 68, 0.9);
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 11px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.8;
+    transition: all 0.2s ease;
+    z-index: 50;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+  
+  .delete-all-btn:hover {
+    opacity: 1;
+    transform: scale(1.05);
+    background-color: rgba(255, 68, 68, 1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   }
   </style>
   

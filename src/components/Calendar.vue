@@ -1,18 +1,18 @@
 <template>
     <div class="calendar">
       <div class="calendar-header">
+        <button @click="previousMonth" class="nav-button">&lt;</button>
         <h2>{{ monthName }} {{ year }}</h2>
+        <button @click="nextMonth" class="nav-button">&gt;</button>
       </div>
       
       <div class="calendar-grid">
-        <!-- Header con días de la semana -->
         <div class="weekday-header">
           <div v-for="dayName in weekDays" :key="dayName" class="weekday-cell">
             {{ dayName }}
           </div>
         </div>
         
-        <!-- Grid de días -->
         <div class="days-grid">
           <div 
             v-for="dayData in calendarDays" 
@@ -39,19 +39,35 @@
   </template>
   
   <script setup lang="ts">
-  import { computed } from 'vue'
+  import { ref, computed } from 'vue'
   import { getCurrentMonthDays, getMonthName, getWeekDays } from '../utils/date'
   import DayCell from './DayCell.vue'
   
-  // Mes actual fijo
-  const currentDate = new Date()
-  const currentMonth = currentDate.getMonth()
-  const currentYear = currentDate.getFullYear()
+  const currentDate = ref(new Date())
+  const currentMonth = ref(currentDate.value.getMonth())
+  const currentYear = ref(currentDate.value.getFullYear())
   
-  // Computed properties
-  const monthName = computed(() => getMonthName(currentMonth))
+  const monthName = computed(() => getMonthName(currentMonth.value))
   const weekDays = computed(() => getWeekDays())
-  const calendarDays = computed(() => getCurrentMonthDays(currentYear, currentMonth))
+  const calendarDays = computed(() => getCurrentMonthDays(currentYear.value, currentMonth.value))
+  
+  function previousMonth() {
+    if (currentMonth.value === 0) {
+      currentMonth.value = 11
+      currentYear.value--
+    } else {
+      currentMonth.value--
+    }
+  }
+  
+  function nextMonth() {
+    if (currentMonth.value === 11) {
+      currentMonth.value = 0
+      currentYear.value++
+    } else {
+      currentMonth.value++
+    }
+  }
   </script>
   
   <style scoped>
@@ -65,7 +81,7 @@
   .calendar-header {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     margin-bottom: 20px;
   }
   
@@ -74,6 +90,21 @@
     font-size: 1.5rem;
     font-weight: 600;
     color: #333;
+  }
+  
+  .nav-button {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 4px;
+    color: #666;
+    transition: background-color 0.2s;
+  }
+  
+  .nav-button:hover {
+    background-color: #f0f0f0;
   }
   
   
