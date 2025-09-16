@@ -57,7 +57,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Demo
 
-_Live demo will be available soon_
+_Live demo here:_ https://calendar-app-vue.pages.dev/
 
 ## Tech Stack
 
