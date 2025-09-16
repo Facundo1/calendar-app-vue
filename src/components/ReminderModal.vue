@@ -54,63 +54,64 @@
     </div>
   </template>
   
-  <script setup lang="ts">
-  import { ref } from 'vue'
-  import { useRemindersStore } from '../store/reminders'
-  import { useWeather } from '../composables/useWeather'
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useRemindersStore } from '../store/reminders'
+import { useWeather } from '../composables/useWeather'
+import { COLORS } from '../constants/colors'
+
+const props = defineProps<{ 
+  day: Date
+  editingReminder?: any
+}>()
+const emit = defineEmits<{ close: [] }>()
+const store = useRemindersStore()
+const { getWeatherWithCache } = useWeather()
+
+const text = ref('')
+const time = ref('')
+const city = ref('')
+const color = ref(COLORS.defaultReminderColor)
+
+// If we are editing, load the reminder data
+if (props.editingReminder) {
+  text.value = props.editingReminder.text
+  time.value = props.editingReminder.time
+  city.value = props.editingReminder.city
+  color.value = props.editingReminder.color
+}
+
+async function save() {
+  const reminderData = {
+    text: text.value,
+    time: time.value,
+    city: city.value,
+    color: color.value,
+  }
   
-  const props = defineProps<{ 
-    day: Date
-    editingReminder?: any
-  }>()
-  const emit = defineEmits<{ close: [] }>()
-  const store = useRemindersStore()
-  const { getWeatherWithCache } = useWeather()
+  const weather = await getWeatherWithCache(reminderData.city)
   
-  const text = ref('')
-  const time = ref('')
-  const city = ref('')
-  const color = ref('#2196f3')
-  
-  // If we are editing, load the reminder data
   if (props.editingReminder) {
-    text.value = props.editingReminder.text
-    time.value = props.editingReminder.time
-    city.value = props.editingReminder.city
-    color.value = props.editingReminder.color
+    const shouldUpdateWeather = props.editingReminder.city !== reminderData.city
+    
+    store.editReminder(props.editingReminder.id, {
+      ...reminderData,
+      ...(shouldUpdateWeather && { weather })
+    })
+  } else {
+    store.addReminder({
+      ...reminderData,
+      date: props.day.toISOString().split('T')[0],
+      weather
+    })
   }
   
-  async function save() {
-    const reminderData = {
-      text: text.value,
-      time: time.value,
-      city: city.value,
-      color: color.value,
-    }
-    
-    const weather = await getWeatherWithCache(reminderData.city)
-    
-    if (props.editingReminder) {
-      const shouldUpdateWeather = props.editingReminder.city !== reminderData.city
-      
-      store.editReminder(props.editingReminder.id, {
-        ...reminderData,
-        ...(shouldUpdateWeather && { weather })
-      })
-    } else {
-      store.addReminder({
-        ...reminderData,
-        date: props.day.toISOString().split('T')[0],
-        weather
-      })
-    }
-    
-    text.value = ''
-    time.value = ''
-    city.value = ''
-    color.value = '#2196f3'
-    emit('close')
-  }
+  text.value = ''
+  time.value = ''
+  city.value = ''
+  color.value = COLORS.defaultReminderColor
+  emit('close')
+}
   </script>
   
   <style scoped>
@@ -120,7 +121,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: v-bind('COLORS.backgroundOverlay');
     display: flex;
     align-items: center;
     justify-content: center;
@@ -128,25 +129,25 @@
   }
   
   .modal {
-    background: white;
+    background: v-bind('COLORS.backgroundPrimary');
     border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: v-bind('COLORS.shadowModal');
     width: 90%;
-    max-width: 400px;
+    max-width: 500px;
     max-height: 90vh;
     overflow-y: auto;
   }
   
   .modal-header {
     padding: 20px 20px 0;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid v-bind('COLORS.borderLight');
     margin-bottom: 20px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
   
   .modal-header h3 {
     margin: 0 0 20px 0;
-    color: #333;
+    color: v-bind('COLORS.textPrimary');
     font-size: 1.5rem;
   }
   
@@ -162,14 +163,14 @@
     display: block;
     margin-bottom: 4px;
     font-weight: 500;
-    color: #555;
+    color: v-bind('COLORS.textSecondary');
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
   
   .form-group input {
     width: 100%;
     padding: 8px 12px;
-    border: 1px solid #ddd;
+    border: 1px solid v-bind('COLORS.borderDefault');
     border-radius: 4px;
     font-size: 14px;
     box-sizing: border-box;
@@ -177,8 +178,8 @@
   
   .form-group input:focus {
     outline: none;
-    border-color: #2196f3;
-    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+    border-color: v-bind('COLORS.secondary');
+    box-shadow: v-bind('COLORS.shadowFocus');
   }
   
   .form-group input[type="color"] {
@@ -207,21 +208,21 @@
   }
   
   .btn-cancel {
-    background-color: #f5f5f5;
-    color: #666;
+    background-color: v-bind('COLORS.buttonCancel');
+    color: v-bind('COLORS.buttonCancelText');
   }
   
   .btn-cancel:hover {
-    background-color: #e0e0e0;
+    background-color: v-bind('COLORS.buttonCancelHover');
   }
   
   .btn-save {
-    background-color: #2196f3;
+    background-color: v-bind('COLORS.secondary');
     color: white;
   }
   
   .btn-save:hover {
-    background-color: #1976d2;
+    background-color: v-bind('COLORS.primaryDark');
   }
   </style>
   

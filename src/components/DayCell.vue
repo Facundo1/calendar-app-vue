@@ -21,9 +21,6 @@
             ×
           </button>
         </div>
-        <div v-if="reminders.length > 3" class="overflow-indicator">
-          +{{ reminders.length - 3 }} more
-        </div>
       </div>
           
       <button 
@@ -45,52 +42,53 @@
     </div>
   </template>
   
-  <script setup lang="ts">
-  import { ref, computed } from 'vue'
-  import { useRemindersStore } from '../store/reminders'
-  import ReminderModal from './ReminderModal.vue'
-  
-  const props = defineProps<{ day: Date }>()
-  const store = useRemindersStore()
-  const showModal = ref(false)
-  const editingReminder = ref(null)
-  
-  const reminders = computed(() =>
-    store.remindersByDate(props.day.toISOString().split('T')[0])
-  )
-  
-  const visibleReminders = computed(() => reminders.value.slice(0, 3))
-  
-  function openModal() {
-    editingReminder.value = null
-    showModal.value = true
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import { useRemindersStore } from '../store/reminders'
+import { COLORS } from '../constants/colors'
+import ReminderModal from './ReminderModal.vue'
+
+const props = defineProps<{ day: Date }>()
+const store = useRemindersStore()
+const showModal = ref(false)
+const editingReminder = ref(null)
+
+const reminders = computed(() =>
+  store.remindersByDate(props.day.toISOString().split('T')[0])
+)
+
+const visibleReminders = computed(() => reminders.value)
+
+function openModal() {
+  editingReminder.value = null
+  showModal.value = true
+}
+
+function editReminder(reminder: any) {
+  editingReminder.value = reminder
+  showModal.value = true
+}
+
+function deleteReminder(id: string) {
+  console.log('Trying to delete reminder with ID:', id)
+  if (confirm('Are you sure you want to delete this reminder?')) {
+    store.deleteReminder(id)
   }
+}
+
+function handleDayClick() {
+  openModal()
+}
+
+function deleteAllReminders() {
+  const dateString = props.day.toISOString().split('T')[0]
+  const count = reminders.value.length
   
-  function editReminder(reminder: any) {
-    editingReminder.value = reminder
-    showModal.value = true
+  if (confirm(`Are you sure you want to delete all ${count} reminders for this day?\n\nThis action cannot be undone.`)) {
+    store.deleteAllRemindersForDate(dateString)
+  } else {
   }
-  
-  function deleteReminder(id: string) {
-    console.log('Trying to delete reminder with ID:', id)
-    if (confirm('Are you sure you want to delete this reminder?')) {
-      store.deleteReminder(id)
-    }
-  }
-  
-  function handleDayClick() {
-    openModal()
-  }
-  
-  function deleteAllReminders() {
-    const dateString = props.day.toISOString().split('T')[0]
-    const count = reminders.value.length
-    
-    if (confirm(`Are you sure you want to delete all ${count} reminders for this day?\n\nThis action cannot be undone.`)) {
-      store.deleteAllRemindersForDate(dateString)
-    } else {
-    }
-  }
+}
   </script>
   
   <style scoped>
@@ -116,9 +114,9 @@
   }
   
   .reminder {
-    font-size: 10px;
+    font-size: 18px;
     color: white;
-    margin: 10px;
+    margin: 7px;
     padding: 3px 6px;
     border-radius: 4px;
     cursor: pointer;
@@ -126,14 +124,14 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    min-height: 20px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    min-height: 30px;
+    box-shadow: v-bind('COLORS.shadowLight');
     transition: all 0.2s ease;
   }
   
   .reminder:hover {
     transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    box-shadow: v-bind('COLORS.shadowMedium');
   }
   
   .reminder-content {
@@ -147,27 +145,27 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 9px;
+    font-size: 12px;
   }
   
   .weather-info {
-    font-size: 8px;
+    font-size: 10px;
     opacity: 0.9;
     font-style: italic;
     margin-top: 1px;
   }
   
   .delete-btn {
-    background-color: rgba(255, 255, 255, 0.2) !important;
-    border: none !important;
-    color: white !important;
+    background-color: v-bind('COLORS.overlayButton');
+    border: none;
+    color: white;
     width: 16px;
     height: 16px;
     border-radius: 50%;
     cursor: pointer;
     font-size: 10px;
     font-weight: bold;
-    display: flex !important;
+    display: flex;
     align-items: center;
     justify-content: center;
     margin-left: 6px;
@@ -179,7 +177,7 @@
   }
   
   .delete-btn:hover {
-    background-color: rgba(255, 68, 68, 0.9) !important;
+    background-color: v-bind('COLORS.errorHover');
     opacity: 1;
     transform: scale(1.1);
   }
@@ -191,7 +189,7 @@
     width: 20px;
     height: 20px;
     border: none;
-    background-color: #347ac1;
+    background-color: v-bind('COLORS.primary');
     color: white;
     border-radius: 50%;
     cursor: pointer;
@@ -201,7 +199,7 @@
     justify-content: center;
     opacity: 0.8;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: v-bind('COLORS.shadowMedium');
   }
   
   .add-reminder-btn:hover {
@@ -211,15 +209,15 @@
   
   .overflow-indicator {
     font-size: 8px;
-    color: #666;
-    background-color: rgba(240, 240, 240, 0.9);
+    color: v-bind('COLORS.textMuted');
+    background-color: v-bind('COLORS.overlayLight');
     padding: 2px 6px;
     border-radius: 8px;
     text-align: center;
     margin-top: 2px;
     font-style: italic;
     font-weight: 500;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid v-bind('COLORS.borderDark');
   }
   
   .delete-all-btn {
@@ -233,20 +231,20 @@
     border-radius: 3px;
     cursor: pointer;
     font-size: 8px;
-    display: flex !important;
+    display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0.7;
     transition: all 0.2s ease;
     z-index: 50;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    box-shadow: v-bind('COLORS.shadowLight');
   }
   
   .delete-all-btn:hover {
     opacity: 1;
     transform: scale(1.1);
-    background-color: rgba(255, 68, 68, 0.9);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    background-color: v-bind('COLORS.errorHover');
+    box-shadow: v-bind('COLORS.shadowMedium');
   }
   </style>
   
