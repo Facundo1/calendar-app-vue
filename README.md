@@ -1,5 +1,67 @@
-# Vue 3 + TypeScript + Vite
+# Calendar App
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+A Vue.js calendar application with weather integration for reminders.
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or higher)
+- npm
+
+### Installation
+
+1. Clone the repository
+
+```bash
+git clone <repository-url>
+cd calendar-app-vue
+```
+
+2. Install dependencies
+
+```bash
+npm install
+```
+
+3. Set up environment variables
+
+```bash
+cp env.example .env
+```
+
+4. Add your OpenWeatherMap API key to `.env`
+
+```env
+VITE_OPENWEATHER_API_KEY=your-api-key-here
+```
+
+Get your free API key at: https://openweathermap.org/api
+
+### Development
+
+Run the development server:
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Features
+
+- Monthly calendar view with navigation
+- Create, edit, and delete reminders
+- Weather integration for reminder locations
+- Smart caching to minimize API calls
+
+## Demo
+
+_Live demo will be available soon_
+
+## Tech Stack
+
+- Vue 3 + TypeScript
+- Vite
+- Pinia (State Management)
+- OpenWeatherMap API
