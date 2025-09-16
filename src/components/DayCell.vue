@@ -36,7 +36,7 @@
       <ReminderModal 
         v-if="showModal" 
         :day="day" 
-        :editing-reminder="editingReminder"
+        :editing-reminder="editingReminder || undefined"
         @close="showModal = false" 
       />
     </div>

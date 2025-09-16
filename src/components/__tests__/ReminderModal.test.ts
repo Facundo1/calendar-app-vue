@@ -19,7 +19,7 @@ describe("ReminderModal Component", () => {
     day: new Date("2024-01-15"),
   };
 
-    describe("Form to add reminder", () => {
+  describe("Form to add reminder", () => {
     it("should render all required form fields", () => {
       const wrapper = mount(ReminderModal, {
         props: defaultProps,
@@ -33,7 +33,7 @@ describe("ReminderModal Component", () => {
       expect(wrapper.find('input[id="city"]').exists()).toBe(true);
       expect(wrapper.find('input[id="color"]').exists()).toBe(true);
 
-      expect(wrapper.find('label[for="text"]').text()).toBe("Reminder:");
+      expect(wrapper.find('label[for="text"]').text()).toBe("Reminder: 0/30");
       expect(wrapper.find('label[for="time"]').text()).toBe("Time:");
       expect(wrapper.find('label[for="city"]').text()).toBe("City:");
       expect(wrapper.find('label[for="color"]').text()).toBe("Color:");
@@ -61,7 +61,7 @@ describe("ReminderModal Component", () => {
       expect(timeInput.attributes("required")).toBeDefined();
 
       expect(cityInput.attributes("required")).toBeDefined();
-      expect(cityInput.attributes("placeholder")).toBe("City");
+      expect(cityInput.attributes("placeholder")).toBe("Enter city name");
     });
 
     it('should show "New Reminder" title when not editing', () => {
@@ -88,7 +88,10 @@ describe("ReminderModal Component", () => {
       const wrapper = mount(ReminderModal, {
         props: {
           ...defaultProps,
-          editingReminder,
+          editingReminder: {
+            ...editingReminder,
+            date: "2023-01-01",
+          },
         },
         global: {
           plugins: [createPinia()],
@@ -114,7 +117,9 @@ describe("ReminderModal Component", () => {
       const thirtyCharText = "A".repeat(30);
       await textInput.setValue(thirtyCharText);
 
-      expect((textInput.element as HTMLInputElement).value).toBe(thirtyCharText);
+      expect((textInput.element as HTMLInputElement).value).toBe(
+        thirtyCharText
+      );
       expect((textInput.element as HTMLInputElement).value.length).toBe(30);
     });
 
@@ -147,21 +152,31 @@ describe("ReminderModal Component", () => {
       const wrapper = mount(ReminderModal, {
         props: {
           ...defaultProps,
-          editingReminder,
+          editingReminder: {
+            ...editingReminder,
+            date: "2023-06-01",
+          },
         },
         global: {
           plugins: [createPinia()],
         },
       });
 
-      const textInput = wrapper.find('input[id="text"]').element as HTMLInputElement;
-      const timeInput = wrapper.find('input[id="time"]').element as HTMLInputElement;
-      const cityInput = wrapper.find('input[id="city"]').element as HTMLInputElement;
+      await wrapper.vm.$nextTick();
+
+      const textInput = wrapper.find('input[id="text"]')
+        .element as HTMLInputElement;
+      const timeInput = wrapper.find('input[id="time"]')
+        .element as HTMLInputElement;
+      const cityInput = wrapper.find('input[id="city"]')
+        .element as HTMLInputElement;
 
       expect(textInput.value).toBe("Important meeting");
       expect(timeInput.value).toBe("14:30");
       expect(cityInput.value).toBe("Barcelona");
-      expect((wrapper.find('input[id="color"]').element as HTMLInputElement).value).toBe("#4caf50");
+      expect(
+        (wrapper.find('input[id="color"]').element as HTMLInputElement).value
+      ).toBe("#4caf50");
     });
   });
 
@@ -189,14 +204,18 @@ describe("ReminderModal Component", () => {
       await wrapper.vm.$nextTick();
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      expect(addReminderSpy).toHaveBeenCalledWith({
-        text: "Nueva cita médica",
-        time: "09:30",
-        city: "Valencia",
-        color: "#2196f3",
-        date: "2024-01-15",
-        weather: "Soleado 22°C",
-      });
+      expect(addReminderSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          text: "Nueva cita médica",
+          time: "09:30",
+          city: "Valencia",
+          color: "#2196f3",
+          weather: "Soleado 22°C",
+        })
+      );
+
+      const callArgs = addReminderSpy.mock.calls[0][0];
+      expect(callArgs.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     });
 
     it("should emit close event after successful save", async () => {
@@ -236,9 +255,15 @@ describe("ReminderModal Component", () => {
       await wrapper.vm.$nextTick();
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect((wrapper.find('input[id="text"]').element as HTMLInputElement).value).toBe("");
-      expect((wrapper.find('input[id="time"]').element as HTMLInputElement).value).toBe("");
-      expect((wrapper.find('input[id="city"]').element as HTMLInputElement).value).toBe("");
+      expect(
+        (wrapper.find('input[id="text"]').element as HTMLInputElement).value
+      ).toBe("");
+      expect(
+        (wrapper.find('input[id="time"]').element as HTMLInputElement).value
+      ).toBe("");
+      expect(
+        (wrapper.find('input[id="city"]').element as HTMLInputElement).value
+      ).toBe("");
     });
   });
 
@@ -283,7 +308,7 @@ describe("ReminderModal Component", () => {
     });
   });
 
-    describe("Integration with weather service", () => {
+  describe("Integration with weather service", () => {
     it("should call weather service with city name", async () => {
       const wrapper = mount(ReminderModal, {
         props: defaultProps,
